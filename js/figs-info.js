@@ -13,7 +13,7 @@ function figLat(D){
   zs.forEach(([z,a,c,col])=>{b+=`<rect x="40" y="${Y(a)}" width="250" height="${Y(c)-Y(a)}" fill="${col}" opacity="${z===D.zona?1:.45}" stroke="#fff" stroke-width="3"/><text x="165" y="${(Y(a)+Y(c))/2+6}" font-size="18" font-weight="bold" fill="#1d2433" text-anchor="middle">Italia ${z}</text>`});
   for(let l=37;l<=47;l+=2)b+=`<text x="300" y="${Y(l)+4}" font-size="11" fill="#5d6a80">${l}° N</text>`;
   const y=Y(clamp(D.lat,36.6,46.9));b+=`<line x1="30" x2="330" y1="${y}" y2="${y}" stroke="${TH.hot}" stroke-width="2" stroke-dasharray="6 4"/><circle cx="165" cy="${y}" r="9" fill="${TH.hot}" stroke="#fff" stroke-width="3"/>`;
-  b+=Lbl(480,70,`${S.prov||'la tua provincia'}`,{s:15,stroke:TH.hot})+Lbl(480,112,`latitudine ≈ ${f1(D.lat)}° N`,{s:12})+Lbl(480,150,`zona: Italia ${D.zona}`,{s:12,stroke:TH.accent})+Lbl(480,188,`T di progetto: ${D.Tp==null?'?':D.Tp+' °C'}`,{s:12,stroke:TH.cold});
+  b+=Lbl(480,70,`${S.prov||'la tua provincia'}`,{s:15,stroke:TH.hot})+Lbl(480,112,`latitudine ≈ ${f1(D.lat)}° N`,{s:12})+Lbl(480,150,`zona: Italia ${D.zona}`,{s:12,stroke:TH.accent})+Lbl(480,188,`antigelo fino a ${D.Tprot} °C`,{s:12,stroke:TH.cold});
   b+=`<text x="480" y="250" font-size="12" fill="#33405a" text-anchor="middle">più a Sud = più sole</text><text x="480" y="268" font-size="12" fill="#33405a" text-anchor="middle">= meno pannelli per m² di casa</text>`;
   return svgWrap(W,H,b);
 }

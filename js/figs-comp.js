@@ -30,7 +30,6 @@ function figGlycol(D,hide=false){
   b+=`<text x="${px+pw/2}" y="${H-14}" font-size="12" font-weight="bold" text-anchor="middle" fill="#33405a">concentrazione di ${g.n} (% in volume)</text>`;
   const pts=[[0,0],...g.pts];b+=`<polyline fill="none" stroke="${TH.cold}" stroke-width="3" points="${pts.map(([p,t])=>`${X(p)},${Y(t)}`).join(' ')}"/>`;
   pts.slice(1).forEach(([p,t])=>b+=`<circle cx="${X(p)}" cy="${Y(t)}" r="3.5" fill="${TH.cold}"/>`);
-  b+=`<line x1="${px}" x2="${px+pw}" y1="${Y(D.Tp)}" y2="${Y(D.Tp)}" stroke="#f08a3c" stroke-dasharray="6 5" stroke-width="2"/><text x="${px+pw-6}" y="${Y(D.Tp)-6}" font-size="11.5" font-weight="bold" text-anchor="end" fill="#c2410c">T esterna di progetto ${D.Tp} °C</text>`;
   b+=`<line x1="${px}" x2="${px+pw}" y1="${Y(D.Tprot)}" y2="${Y(D.Tprot)}" stroke="${TH.hot}" stroke-dasharray="3 4" stroke-width="2"/><text x="${px+pw-6}" y="${Y(D.Tprot)+15}" font-size="11.5" font-weight="bold" text-anchor="end" fill="${TH.hot}">protezione richiesta ${D.Tprot} °C</text>`;
   if(!hide)b+=`<circle cx="${X(D.gpct)}" cy="${Y(D.Tg)}" r="9" fill="${D.gOk?'#1f9d63':'#d23c3c'}" stroke="#fff" stroke-width="3"/>`+Lbl(X(D.gpct)+10,Y(D.Tg)+30,`${D.gpct}% → ${D.Tg} °C`,{s:12,a:'start',stroke:D.gOk?'#1f9d63':'#d23c3c'});
   return svgWrap(W,H,b);
