@@ -1,7 +1,7 @@
 // Figure: funzioni di base
 // ===================== FIGURE (SVG valide sia animate sia per il Word) =====================
 let UID=0;
-function SV(w,h,body,bg='#ffffff'){return {w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="Arial, Helvetica, sans-serif">${bg?`<rect width="${w}" height="${h}" fill="${bg}"/>`:''}${body}</svg>`}}
+function SV(w,h,body,bg='#ffffff'){return {w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="${(TH&&TH.figFont)||'Arial, Helvetica, sans-serif'}">${bg?`<rect width="${w}" height="${h}" fill="${bg}"/>`:''}${body}</svg>`}}
 const T=(x,y,t,o={})=>`<text x="${x}" y="${y}" font-size="${o.s||11}" fill="${o.c||'#33405a'}" font-weight="${o.w||'bold'}" text-anchor="${o.a||'start'}"${o.tr?` transform="${o.tr}"`:''}>${xesc(t)}</text>`;
 const LN=(d,col,on,L,w=5,cls='')=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" opacity="${on?1:0.28}"${L&&on?` class="flow ${cls}"`:''}/>`;
 function sunG(x,y,r=14,L=false){let s='';for(let i=0;i<8;i++){const a=i*Math.PI/4;s+=`<line x1="${x+Math.cos(a)*(r+4)}" y1="${y+Math.sin(a)*(r+4)}" x2="${x+Math.cos(a)*(r+10)}" y2="${y+Math.sin(a)*(r+10)}"/>`}

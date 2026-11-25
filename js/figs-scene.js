@@ -1,5 +1,5 @@
 // ===================== FIGURE PERSONALIZZATE (parte 1) =====================
-function svgWrap(w,h,body,defs=''){return {w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="Arial, Helvetica, sans-serif"><defs>${defs}</defs>${body}</svg>`}}
+function svgWrap(w,h,body,defs=''){return {w,h,svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" font-family="${(TH&&TH.figFont)||'Arial, Helvetica, sans-serif'}"><defs>${defs}</defs>${body}</svg>`}}
 const P2=(a)=>a.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
 function Lbl(x,y,t,o={}){
   const fs=o.s||12,w=String(t).length*fs*0.56+18,h=fs+11,a=o.a||'middle',x0=a==='middle'?x-w/2:a==='end'?x-w:x,st=o.st||TH.label;

@@ -134,7 +134,7 @@ function makeTheme(){
     tankR:pk([.55,.65,.75,.85,.95]),tankK:pk([.92,1,1.06]),pipeK:pk([.8,.9,1,1.1,1.2]),
     infoA:pk(['#2a5aa0','#1f6fb2','#3a4fa3','#2563eb','#1e5a8a']),infoW:pk(['#c2410c','#b4521f','#d9480f','#c0392b','#b45309']),infoG:pk(['#14965c','#1f7a4d','#15803d','#2e8b57','#0f766e']),
     infoP:pk(['#5b4a9e','#7c3aed','#6d28d9','#475569','#0e7490']),
-    sunR:pk([22,26,30]),flip:R()<.5,roofTex:pk(['tile','lines','seam']),
+    sunR:pk([22,26,30]),figFont:pk(['Arial, Helvetica, sans-serif','Segoe UI, Arial, sans-serif','Calibri, Arial, sans-serif','Tahoma, Arial, sans-serif','Trebuchet MS, Arial, sans-serif','Franklin Gothic Book, Arial, sans-serif']),flip:R()<.5,roofTex:pk(['tile','lines','seam']),
     roof:pk(['#b5523b','#9c4130','#6b7380','#a65a3a','#7c3a2c','#8a4b38','#4b5563','#8c2d19','#92400e','#57534e','#a0522d','#5b6b7a']),
     wall:pk(['#f4ead7','#f8f3ea','#efdcbf','#f2ddd2','#e6eef0','#f1e6c8','#eae2d6','#f3e9e0','#e4ecf2','#f2e3cf','#efe9df']),plates:pk([5,6,7,8]),bgTone:pk(['#ffffff','#fbfcfe','#fdfbf6','#f8fafc'])
   });

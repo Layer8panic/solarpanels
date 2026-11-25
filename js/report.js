@@ -34,7 +34,7 @@ async function buildReport(){
   doc.p(V('p1c',[`**Calcolo:** la superficie abitata è di **${f0(D.A)} m²**, quindi:`,`**Calcolo:** essendo la superficie abitata pari a **${f0(D.A)} m²**, si ottiene:`,`**Calcolo:** con **${f0(D.A)} m²** di superficie abitata risulta:`]));
   doc.cp(`${f2(D.coef)} × ${f0(D.A)} / 10 = ${f2(D.Sreq)} m²`);
   doc.p(V('p1d',[`Dalla scheda tecnica la superficie netta ricettiva del pannello scelto è di **${f2(D.Aref)} m²**, quindi il numero di pannelli sarà:`,`Ogni pannello ha una superficie netta ricettiva di **${f2(D.Aref)} m²** (scheda tecnica): il numero di pannelli è quindi:`,`Dividendo per la superficie ricettiva di un pannello, pari a **${f2(D.Aref)} m²**, si trova il numero di collettori:`]));
-  doc.cp(`${f2(D.Sreq)} m² / ${f2(D.Aref)} m² = ${f2(D.Nraw)} → ${D.N} pannelli solari ${D.P.n}`);
+  doc.cp(`${f2(D.Sreq)} m² / ${f2(D.Aref)} m² = ${f2(D.Nraw)}, arrotondato a ${D.N} pannelli solari ${D.P.n}`);
   doc.p(V('p1e',[`Il risultato si arrotonda per eccesso: la superficie installata è ${D.N} × ${f2(D.Aref)} = **${f2(D.Snet)} m²**. I pannelli sono disposti sulla falda esposta a ${esp}, con la stessa inclinazione di ${D.tilt}°.`,
     `Arrotondando per eccesso si installano ${D.N} pannelli, per una superficie complessiva di **${f2(D.Snet)} m²**, montati sulla falda esposta a ${esp} e inclinati di ${D.tilt}° come il tetto.`,
     `Poiché i pannelli sono interi, si arrotonda per eccesso a ${D.N}: la superficie captante totale è di **${f2(D.Snet)} m²**. I collettori seguono l’inclinazione della falda (${D.tilt}°), esposta a ${esp}.`]));
