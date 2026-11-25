@@ -25,44 +25,42 @@ function fitAdvice(D){const f=fitOptions(D),same=f.filter(x=>x.o===S.orient),oth
   if(oth.length)return {txt:`In ${nm(S.orient)} non ci stanno con nessun numero di file. In <b>${nm(oth[0].o)}</b> su ${fl(oth[0].r)} ci stanno tutti.`,btn:`<button class="btn sm" data-fixorient="${oth[0].o}">${ic('undo')} Monta in ${nm(oth[0].o)}</button>`};
   return {txt:`Il tetto (${f1(D.roofW)} × ${f1(D.roofL)} m) è troppo piccolo per ${D.N} pannelli${S.camino?' con il camino':''}. Torna alla fase “Il tetto” e controlla le misure della falda${S.camino?' o togli il camino se non c’è':''}.`,btn:`<button class="btn sm" data-goid="tetto">← Vai a “Il tetto”</button>`}}
 function compute(){
-  const D={},reg=REGIONI[S.regione];
-  D.zona=reg?reg.z:'Sud';D.lat=reg?reg.lat:40;D.loc=S.prov||'località';D.Tp=isNull(S.Tp)?null:+S.Tp;
+  const D={},pv=PROVINCE[S.prov];
+  D.zona=pv?pv.z:'Sud';D.lat=pv?pv.lat:38;D.loc=S.prov||'—';D.reg=pv?pv.reg:'';
   D.size=S.edificio==='palazzina'?'big':'small';D.zr=ZONE[D.zona][D.size];
   D.coef=isNull(S.coef)?D.zr[0]:clamp(+S.coef,D.zr[0],D.zr[1]);D.A=+S.A||0;D.Sreq=D.coef*D.A/10;
   D.P=S.pan==='custom'?{...PANNELLI.custom,...S.cp}:PANNELLI[S.pan||'rps254'];D.Aref=+D.P.Ar;
   D.Nraw=D.Sreq/D.Aref;D.N=Math.max(1,Math.ceil(D.Nraw-1e-6));D.Snet=D.N*D.Aref;
-  D.tilt=S.roof==='piano'?S.flatTilt:(+S.tilt||30);D.az=DIR_AZ[S.dir]??0;D.oLoss=orientLoss(D.az);D.noonW=90-D.lat-23.45;D.noonS=90-D.lat+23.45;D.ideal=Math.round(D.lat+10);
-  const sg=suggestRoof();D.roofW=isNull(S.roofW)?sg.W:+S.roofW;D.roofL=isNull(S.roofL)?sg.L:+S.roofL;D.roofEst=isNull(S.roofW)||isNull(S.roofL);
-  D.obs=S.camino?[{t:'camino',x:TH.chimney==='left'?Math.min(1.2,D.roofW*0.12):Math.max(0.4,D.roofW*0.86-0.3),y:Math.max(0.3,D.roofL*0.3),w:.6,h:.6}]:[];
-  D.layout=layoutPanels(D);D.conn=S.orient==='V'?'parallelo':'serie';D.maxLine=S.orient==='V'?D.P.maxV:D.P.maxO;
-  D.lines=Math.max(D.layout.rows,Math.ceil(D.N/(D.conn==='serie'?Math.min(D.maxLine,5):D.maxLine)));D.per=Math.ceil(D.N/D.lines);
-  // portata
-  D.qsp=40;D.Gp=D.qsp*D.Aref;D.G=D.Gp*D.N;D.Gline=D.G/D.lines;
-  // Tabella 7A: riga r imposta, primo tubo con portata >= G; poi r reale = riga dove la colonna supera G
-  D.rimp=S.rimp||12;const ri=PIPE_R.indexOf(D.rimp);
-  D.pipeIdx=PIPES.findIndex(p=>p.g[ri]!=null&&p.g[ri]>=D.G);D.pipeOver=D.pipeIdx<0||D.pipeIdx>8;if(D.pipeIdx<0)D.pipeIdx=PIPES.length-1;D.pipeP=PIPES[D.pipeIdx];
-  D.rRow=D.pipeP.g.findIndex(g=>g!=null&&g>=D.G);if(D.rRow<0)D.rRow=PIPE_R.length-1;D.r=PIPE_R[D.rRow];
+  D.tilt=+S.tilt||35;D.az=DIR_AZ[S.dir]??0;D.oLoss=orientLoss(D.az);D.noonW=90-D.lat-23.45;D.noonS=90-D.lat+23.45;D.ideal=Math.round(D.lat+10);
+  // disposizione: una stringa in fila; se sono più di 6 si va su due file
+  S.orient='V';S.rows=D.N>6?2:1;const sg=suggestRoof();D.roofW=Math.max(sg.W,(Math.ceil(D.N/S.rows))*1.25+1.2);D.roofL=Math.max(sg.L,S.rows*2.35+1);D.obs=[];
+  D.layout=layoutPanels(D);D.conn='serie';D.per=D.N;D.lines=1;
+  // portata (40 l/h per m² di pannello)
+  D.qsp=40;D.Gp=D.qsp*D.Aref;D.G=D.Gp*D.N;D.Gline=D.G;
+  // Tab. 7A: perdita imposta 12 mm c.a./m, primo tubo che porta almeno G
+  D.rimp=12;D.r=12;const ri=PIPE_R.indexOf(D.rimp);D.rRow=ri;
+  D.pipeIdx=PIPES.findIndex(p=>p.g[ri]!=null&&p.g[ri]>=D.G);D.pipeOver=D.pipeIdx<0;if(D.pipeIdx<0)D.pipeIdx=PIPES.length-1;D.pipeP=PIPES[D.pipeIdx];
   D.pipe={p:D.pipeP,r:D.r,v:vel(D.G,D.pipeP.di)};
-  D.Lone=isNull(S.Lone)?null:+S.Lone;D.Ltot=D.Lone==null?0:2*D.Lone;
-  // Legge 10: lambda arrotondata alla riga superiore della tabella
-  D.im=INS_MAT[S.insMat||'nbr'];D.lam=+S.lam||D.im.l;D.lamRow=INS_L.findIndex(l=>l>=D.lam-1e-9);if(D.lamRow<0)D.lamRow=INS_L.length-1;
-  D.insCol=insCol(D.pipeP.de);D.insTab=INS_T[D.lamRow][D.insCol];D.insComm=INS_COMM.find(v=>v>=D.insTab-0.01)||80;
-  D.ins={s:D.insTab,i0:D.lamRow,i1:D.lamRow,c:D.insCol};D.insK=1;D.insReq=D.insTab;
-  D.Dext=D.pipeP.de+2*D.insComm;D.Sext=Math.PI*D.Dext/1000;D.tab9Col=TAB9_S.indexOf(D.insComm);
-  // antigelo
-  D.gtype=S.gtype||'propilenico';const G=GLICOLE[D.gtype];D.Tprot=D.Tp==null?null:D.Tp-10;
-  D.gMin=(G.pts.find(([p,t])=>D.Tprot!=null&&t<=D.Tprot)||G.pts[G.pts.length-1])[0];D.gpct=D.gMin;
-  D.Tg=(G.pts.find(([p])=>p===D.gpct))[1];D.gOk=D.Tprot!=null&&D.Tg<=D.Tprot;D.fg=G.fm[D.gpct]||1.1;
-  // pompa
-  D.Hcont=D.r*D.Ltot;D.Hloc=Math.round(D.Hcont*0.3);D.Hdist=D.Hcont;D.Hpipes=D.Hcont+D.Hloc;
-  D.Hp1=D.P.Hp*(D.Gp/D.P.Gp)**2;D.Hfield=D.conn==='serie'?D.per*D.P.Hp*(D.Gline/D.P.Gp)**2:D.Hp1;
-  D.Hsc=isNull(S.Hsc)?500:+S.Hsc;D.Htot=(D.Hpipes+D.Hfield)*D.fg+D.Hsc;D.locPct=30;
+  // Legge 10 (DPR 412/93): riga di λ uguale o subito più grande, colonna del diametro esterno
+  D.im=INS_MAT[S.insMat||'nbr'];D.lam=D.im.l;D.lamRow=INS_L.findIndex(l=>l>=D.lam-1e-9);if(D.lamRow<0)D.lamRow=INS_L.length-1;
+  D.insCol=insCol(D.pipeP.de);D.insTab=INS_T[D.lamRow][D.insCol];D.ins={s:D.insTab,i0:D.lamRow,i1:D.lamRow,c:D.insCol};
+  // Tab. 9: colonna dello spessore uguale o subito più grande
+  D.tab9Col=TAB9_S.findIndex(v=>v>=D.insTab);if(D.tab9Col<0)D.tab9Col=TAB9_S.length-1;D.insComm=TAB9_S[D.tab9Col];D.tab9Row=TAB9_DE.indexOf(D.pipeP.de);
+  D.Sext=Math.PI*(D.pipeP.de+2*D.insComm)/1000;D.Dext=D.pipeP.de+2*D.insComm;
+  // antigelo: temperatura minima della zona, prima concentrazione che protegge
+  D.gtype=S.gtype||'etilico';const G=GLICOLE[D.gtype];D.Tprot=ZONA_GELO[D.zona];
+  D.gMin=(G.pts.find(([p,t])=>t<=D.Tprot)||G.pts[G.pts.length-1])[0];D.gpct=D.gMin;
+  D.Tg=(G.pts.find(([p])=>p===D.gpct))[1];D.gOk=D.Tg<=D.Tprot;D.fg=G.fm[D.gpct]||1.1;
+  // pompa: stringa in serie, tubi andata e ritorno, scambiatore 500 mm c.a.
+  D.Lone=isNull(S.Lone)?null:+S.Lone;D.LoneSug=Math.max(6,Math.round(((+S.piani||2)*3+2)/2)*2);D.Ltot=D.Lone==null?0:2*D.Lone;
+  D.Hp1=D.P.Hp*(D.G/D.P.Gp)**2;D.Hfield=D.Hp1*D.N;D.Hcont=D.r*D.Ltot;D.Hloc=0;D.Hpipes=D.Hcont;
+  D.Hsc=500;D.Hsum=D.Hfield+D.Hcont;D.Htot=D.Hsum*D.fg+D.Hsc;
   // scambiatore
-  D.q=400;D.Q=D.q*D.Snet;D.QkW=D.Q/860;D.tsi=50;D.tso=40;D.tbi=35;D.tbo=45;D.dtml=5;
+  D.q=400;D.Q=D.q*D.Snet;D.QkW=D.Q/860;D.tsi=50;D.tso=40;D.tbi=35;D.tbo=45;
   // vaso e valvola
-  D.VP=D.N*D.P.vol;D.Vt=D.Ltot*Math.PI*(D.pipeP.di/1000)**2/4*1000;D.Vsc=isNull(S.Vsc)?Math.round(D.Snet*2.5):+S.Vsc;D.Vc=D.VP+D.Vt+D.Vsc;
-  D.e=0.07;D.k=1.1;D.Vu=(D.Vc*D.e+D.VP)*D.k;D.HstSug=r1((+S.piani||2)*3+(S.roof==='piano'?1.5:D.roofL*Math.sin(rad(D.tilt))));D.Hst=isNull(S.Hst)?D.HstSug:+S.Hst;
-  D.Pi=r1(D.Hst/10.2+0.5);D.Pvs=+S.Pvs||6;D.Pf=D.Pvs-0.5;D.Vn=D.Vu*(D.Pf+1)/(D.Pf-D.Pi);D.vaso=VASI_COMM.find(v=>v>=D.Vn)||150;
+  D.VP=D.N*D.P.vol;D.Vt=D.Ltot*Math.PI*(D.pipeP.di/1000)**2/4*1000;D.Vsc=isNull(S.Vsc)?null:+S.Vsc;D.Vc=D.VP+D.Vt+(D.Vsc||0);
+  D.e=0.07;D.k=1.1;D.Vu=(D.Vc*D.e+D.VP)*D.k;
+  D.Hst=(+S.piani||2)*3+2;D.Pst=D.Hst/10.2;D.Pi=r1(D.Pst+0.5);D.Pvs=+S.Pvs||5;D.Pf=D.Pvs-0.5;D.Vn=D.Vu*(D.Pf+1)/(D.Pf-D.Pi);D.vaso=VASI_COMM.find(v=>v>=D.Vn)||150;
   // serbatoio
   D.kV=+S.kV||55;D.Vcalc=D.kV*D.Snet;D.Vtank=SERBATOI_COMM.find(v=>v>=D.Vcalc-1)||2000;D.tank=S.tank||'ss';
   D.tankName={ss:'Serbatoio a semplice serpentino',ds:'Serbatoio a doppio serpentino',tit:'Serbatoio combinato tank in tank'}[D.tank];

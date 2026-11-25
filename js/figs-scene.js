@@ -40,7 +40,8 @@ function sceneHouse(D,o={}){
   let b=`<rect width="${W}" height="${H}" fill="url(#sky${id})"/>`;
   const sx=W*(0.7+TH.sunX),sy=70;b+=sunRays(sx,sy,26,L);
   const R=rngFrom(hashStr(seedStr()+'cl'));for(let i=0;i<TH.clouds;i++)b+=cloud(360+R()*300,40+R()*70,0.7+R()*0.6);
-  b+=`<rect y="${yB-6}" width="${W}" height="${H-yB+6}" fill="${TH.grass}"/><path d="M0 ${yB-6} Q ${W/2} ${yB-22} ${W} ${yB-6}" fill="${shade(TH.grass,.1)}"/>`;
+  const gH=yB+dy-26;b+=`<rect y="${gH}" width="${W}" height="${H-gH}" fill="${TH.grass}"/><rect y="${gH}" width="${W}" height="10" fill="${shade(TH.grass,-.12)}" opacity=".35"/><rect y="${yB+8}" width="${W}" height="${H-yB-8}" fill="${shade(TH.grass,.08)}" opacity=".5"/>`;
+  b+=`<polygon points="${P2([[x0-14,yB+4],[x1+14,yB+4],[x1+dx+30,yB+dy+2],[x0+dx+10,yB+dy+2]])}" fill="#203018" opacity=".22"/>`;
   const RT=rngFrom(hashStr(seedStr()+'tr'));for(let i=0;i<TH.trees;i++){const left=i%2===0;b+=tree(left?40+RT()*110:830+RT()*50,yB+4,0.8+RT()*0.5,i+Math.floor(RT()*3))}
   if(TH.garage)b+=`<polygon points="${P2([[x0-120,yB],[x0,yB],[x0,yB-90],[x0-120,yB-90]])}" fill="${TH.wall2}" stroke="#9b8c70"/><polygon points="${P2([[x0-130,yB-90],[x0+6,yB-90],[x0+6,yB-100],[x0-130,yB-100]])}" fill="${TH.roof2}"/><rect x="${x0-105}" y="${yB-66}" width="88" height="66" fill="#d9dde3" stroke="#8a929d"/>${[1,2,3,4].map(k=>`<line x1="${x0-105}" x2="${x0-17}" y1="${yB-66+k*13}" y2="${yB-66+k*13}" stroke="#aab1bb"/>`).join('')}`;
   // pareti
@@ -107,10 +108,7 @@ function sceneHouse(D,o={}){
   // quote
   if(dims&&!flat){
     const off=20,a=[E1[0],E1[1]+off],c2=[E2[0],E2[1]+off];
-    b+=`<line x1="${a[0]}" y1="${a[1]}" x2="${c2[0]}" y2="${c2[1]}" stroke="#1d2433" stroke-width="1.4" marker-start="url(#ar${id})" marker-end="url(#ar${id})"/>`;
     defs+=`<marker id="ar${id}" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8z" fill="#1d2433"/></marker>`;
-    lab+=Lbl((a[0]+c2[0])/2,a[1]+24,`larghezza falda ${f2(D.roofW)} m`,{s:12});
-    lab+=`<line x1="${E1[0]-14}" y1="${E1[1]}" x2="${R1[0]-14}" y2="${R1[1]}" stroke="#1d2433" stroke-width="1.4" marker-start="url(#ar${id})" marker-end="url(#ar${id})"/>`+Lbl(E1[0]-40,(E1[1]+R1[1])/2,`falda ${f2(D.roofL)} m`,{s:11,a:'end'});
     {const ax=x1+dx/2,ay=yT+dy/2-h,a1=Math.atan2(dy,dx),a2=Math.atan2(ay-yT,ax-x1),r=40;lab+=`<path d="M${x1+r*Math.cos(a1)},${yT+r*Math.sin(a1)} A${r} ${r} 0 0 0 ${x1+r*Math.cos(a2)},${yT+r*Math.sin(a2)}" fill="none" stroke="#1d2433" stroke-width="2"/>`+lead(x1+30,yT-22,x1+70,yT-70)+Lbl(x1+90,yT-76,`inclinazione ${tilt}°`,{s:12,stroke:TH.hot})}
     const cx=80,cy=90,az=rad(D.az||0);lab+=`<g transform="translate(${cx},${cy})"><circle r="34" fill="#fff" stroke="#c9c1ad" stroke-width="2"/><text y="-20" text-anchor="middle" font-size="11" font-weight="bold" fill="#33405a">N</text><text y="30" text-anchor="middle" font-size="11" font-weight="bold" fill="#33405a">S</text><line x1="0" y1="0" x2="${-Math.sin(az)*26}" y2="${Math.cos(az)*26}" stroke="${TH.hot}" stroke-width="4" stroke-linecap="round"/><circle r="4" fill="${TH.hot}"/></g>`+Lbl(cx,cy+60,`falda verso ${S.dir||'Sud'}`,{s:11});
   }
@@ -217,7 +215,7 @@ function figDPR(D,hide=false){
   INS_C.forEach((c,j)=>{const x=lx+j*cw,sel=j===I.c;if(sel)b+=`<rect x="${x}" y="${ty-30}" width="${cw}" height="${11*rh+30}" fill="${TH.accent}" opacity=".12"/>`;b+=`<text x="${x+cw/2}" y="${ty-12}" font-size="11" font-weight="bold" fill="${sel?TH.accent:'#1d2433'}" text-anchor="middle">De ${xesc(c)}</text>`});
   INS_L.forEach((l,i)=>{const y=ty+i*rh,on=i===I.i0||i===I.i1;b+=`<rect x="12" y="${y}" width="${W-24}" height="${rh}" fill="${on?'#fff1c2':i%2?'#f7f9fc':'#fff'}"/><text x="${lx-10}" y="${y+15}" font-size="11.5" font-weight="bold" fill="#33405a" text-anchor="end">${f3(l)}</text>`;
     INS_T[i].forEach((v,j)=>{const x=lx+j*cw,pick=on&&j===I.c;if(pick)b+=`<rect x="${x+8}" y="${y+2}" width="${cw-16}" height="${rh-4}" rx="4" fill="${TH.accent}"/>`;b+=`<text x="${x+cw/2}" y="${y+15}" font-size="11.5" fill="${pick?'#fff':'#1d2433'}" font-weight="${pick?'bold':'normal'}" text-anchor="middle">${v}</text>`})});
-  b+=`<text x="14" y="${H-14}" font-size="11.5" font-weight="bold" fill="${TH.accent}">${hide?'Riga: λ del tuo isolante · colonna: diametro esterno del tubo':`λ = ${f3(D.lam)} · De ${f1(D.pipe.p.de)} mm → ${I.s} mm → commerciale ${D.insComm} mm`}</text>`;
+  b+=`<text x="14" y="${H-14}" font-size="11.5" font-weight="bold" fill="${TH.accent}">${hide?'Riga: λ del tuo isolante · colonna: diametro esterno del tubo':`λ = ${f3(D.lam)} · De ${f1(D.pipe.p.de)} mm → spessore ${I.s} mm`}</text>`;
   return svgWrap(W,H,b);
 }
 function figTab9(D,hide=false){

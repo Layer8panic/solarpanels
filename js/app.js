@@ -1,9 +1,9 @@
 // ===================== APP: STATO, CONTROLLI, ANIMAZIONI, EVENTI =====================
 const DEF={nome:'',cognome:'',classe:'V MAT 2026/2027',docente:'LILLO TIROLO',variant:0,step:0,vw:{},tk:{},bad:{},seen:{},fast:false,
- edificio:'villetta',A:null,piani:2,regione:null,prov:null,Tp:null,roof:'falda',dir:'Sud',tilt:null,flatTilt:40,roofW:null,roofL:null,camino:true,
- pan:'rps254',cp:{...PANNELLI.custom},coef:null,orient:'V',rows:1,margin:0.5,rimp:12,Lone:null,pipeMat:null,insMat:'nbr',lam:0.035,insPos:'est',
- gtype:'propilenico',Hsc:null,Vsc:null,Hst:null,Pvs:6,kV:55,tank:'ss',dton:6,tmax:85};
-const KEY='solarpanels-v1';
+ edificio:'villetta',A:null,piani:2,prov:null,roof:'falda',dir:'Sud',tilt:null,flatTilt:40,camino:false,
+ pan:'rps254',cp:{...PANNELLI.custom},coef:null,orient:'V',rows:1,margin:0.5,Lone:null,pipeMat:null,insMat:'nbr',
+ gtype:'etilico',Vsc:null,Pvs:5,kV:55,tank:'ss',dton:6,tmax:85};
+const KEY='solarpanels-v2';
 const fresh=()=>JSON.parse(JSON.stringify(DEF));
 let S=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY));return s?{...fresh(),...s}:fresh()}catch(e){return fresh()}})();
 let D=null,RUNNING=false;
@@ -11,9 +11,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toastOn
 let _tw=false;function toastOnce(t){if(_tw)return;_tw=true;toast(t)}
 
 // ---------- controllo degli inserimenti ----------
-const VALID={A:[20,5000,'La superficie deve stare tra 20 e 5000 m².'],piani:[1,6,'I piani vanno da 1 a 6.',true],Tp:[-30,15,'In Italia la temperatura di progetto sta tra −30 e +15 °C.'],
- tilt:[5,70,'L’inclinazione del tetto va da 5° a 70°.'],roofW:[2,60,'La larghezza della falda va da 2 a 60 m.'],roofL:[2,40,'La lunghezza della falda va da 2 a 40 m.'],
- Lone:[1,100,'La distanza va da 1 a 100 m (solo andata).'],Hsc:[0,5000,'La perdita dello scambiatore va da 0 a 5000 mm c.a.'],Hst:[1,40,'L’altezza va da 1 a 40 m.'],Vsc:[0,200,'I litri dello scambiatore vanno da 0 a 200.']};
+const VALID={A:[20,5000,'La superficie deve stare tra 20 e 5000 m².'],piani:[1,6,'I piani vanno da 1 a 6.',true],tilt:[5,70,'L’inclinazione del tetto va da 5° a 70°.']};
 const VALID_CP={Ar:[0.5,5,'La superficie di un pannello sta tra 0,5 e 5 m².'],vol:[0.3,15,'Il liquido contenuto sta tra 0,3 e 15 litri.'],Gp:[10,600,'La portata di prova sta tra 10 e 600 l/h.'],Hp:[1,3000,'La perdita sta tra 1 e 3000 mm c.a.'],maxV:[1,20,'Da 1 a 20 pannelli in fila.',true],lung:[500,3500,'La lunghezza sta tra 500 e 3500 mm.'],larg:[400,3000,'La larghezza sta tra 400 e 3000 mm.']};
 function parseNum(v){if(v==null)return NaN;const t=String(v).trim().replace(/\s/g,'');if(!t)return NaN;if(!/^[-−+]?\d+([.,]\d+)?$/.test(t))return NaN;return parseFloat(t.replace('−','-').replace(',','.'))}
 function checkNum(rule,raw){const v=parseNum(raw);if(String(raw).trim()==='')return {v:null,err:''};if(isNaN(v))return {v:null,err:'Scrivi solo un numero, ad esempio 12 oppure 12,5.'};
@@ -42,7 +40,7 @@ function taskOk(t){const s=S.tk[t.id]||{};
 function ownMissing(st){return (st.need||[]).filter(k=>NEED_STEP[k]===st.id&&fieldBad(k)&&!(k==='tilt'&&S.roof==='piano'))}
 function otherMissing(st){return (st.need||[]).filter(k=>NEED_STEP[k]!==st.id&&fieldBad(k)&&!(k==='tilt'&&S.roof==='piano'))}
 function stepBlock(st){return st.block&&!otherMissing(st).length?st.block(D):''}
-const BADSTEP={A:'casa',piani:'casa',Tp:'casa',tilt:'tetto',roofW:'tetto',roofL:'tetto',Lone:'tubi',Hsc:'pompa',Hst:'vaso',Vsc:'vaso'};
+const BADSTEP={A:'casa',piani:'casa',tilt:'tetto'};
 function stepBad(st){return Object.keys(S.bad).filter(k=>BADSTEP[k]===st.id)}
 function cpBad(){return S.pan==='custom'&&Object.keys(VALID_CP).some(k=>S.bad['cp_'+k])}
 function stepDone(st){if(st.report)return false;if(otherMissing(st).length||ownMissing(st).length||stepBlock(st))return false;if(st.id==='pannello'&&cpBad())return false;if(stepBad(st).length)return false;
@@ -71,9 +69,9 @@ function render(){
 }
 function updNext(){const st=STEPS[S.step],ok=stepDone(st);['#nextBtn','#nextBtnM'].forEach(id=>{const b=$(id);if(b){b.classList.toggle('locked',!ok);b.innerHTML=ok?'Avanti →':ic('lock')+' Avanti'}});
   $('#prog').style.width=(STEPS.filter(stepDone).length/(STEPS.length-1)*100)+'%'}
-function tutorHTML(g){const open=S.tipsOpen??(window.innerWidth>860);
+function tutorHTML(g){const open=S.tipsOpen??(window.innerWidth>860),has=g.dove||g.perche;
   return `<div class="tutor"><div class="av">${AV}</div><div><div class="bub"><div class="who">Archimede</div><div class="msg">${g.msg}</div></div>
-  <details class="more" ${open?'open':''}><summary>Dove lo trovo · Perché</summary><div class="tips" style="grid-template-columns:1fr 1fr"><div class="tip dove"><b>Dove lo trovi</b>${g.dove}</div><div class="tip rag"><b>Perché</b>${g.perche}</div></div></details></div></div>`}
+  ${has?`<details class="more" ${open?'open':''}><summary>Da dove vengono i numeri · Perché</summary><div class="tips"><div class="tip dove"><b>Da dove vengono i numeri</b>${g.dove||''}</div><div class="tip rag"><b>Perché</b>${g.perche||''}</div></div></details>`:''}</div></div>`}
 let _rq=0;function queueDyn(){if(_rq)return;_rq=requestAnimationFrame(()=>{_rq=0;refreshDyn()})}
 function refreshDyn(){if(_rq){cancelAnimationFrame(_rq);_rq=0}
   const st=STEPS[S.step];if(st.report||otherMissing(st).length){updNext();return}
@@ -114,7 +112,8 @@ function curTask(t,i,n){const s=tkS(t.id);let body='';
     if(s.v!=null&&!taskOk(t))body+=`<div class="fb no">${t.bad?t.bad(D):'Non è la scelta giusta, riprova.'}</div>`;
     if(s.help&&t.help)body+=`<div class="fb help">${ic('bulb')} ${t.help(D)}</div>`;
     if(t.help)body+=`<div class="tact"><button class="btn sm ghost" data-thelp="${t.id}">${ic('bulb')} Aiutami a scegliere</button></div>`}
-  return `<div class="task cur"><span class="tn">Passo ${i+1} di ${n}</span><div class="tq">${t.q(D)}</div>${body}</div>`}
+  const why=t.why?`<div class="why"><b>Cosa faccio e perché</b>${t.why(D)}</div>`:'';
+  return `<div class="task cur"><span class="tn">Passo ${i+1} di ${n}</span><div class="tq">${t.q(D)}</div>${why}${body}</div>`}
 function figPanel(st){const vs=st.figs,i=clamp(S.vw[st.id]||0,0,vs.length-1),v=vs[i];
   return `${vs.length>1?`<div class="vtabs">${vs.map((x,j)=>`<button class="${j===i?'on':''}" data-view="${j}">${x.n}</button>`).join('')}</div>`:''}${figBox(v.f(D),v.n)}`}
 function renderNav(){let h='',g='';const fo=firstOpen();
@@ -189,8 +188,8 @@ function reportUI(){const L=makeLayout(),todo=STEPS.filter(s=>!s.report&&!stepDo
    ${ok?'<div class="note green">Tutte le fasi sono fatte: la relazione è pronta.</div>':`<div class="note red">Mancano ${todo.length} fasi: torna a “${todo[0].t}”.</div>`}
    <div class="opts" style="margin-top:14px"><button class="btn sun" id="docBtn" ${ok?'':'disabled'}>${ic('download')} Scarica la relazione Word</button><button class="btn ghost" id="varBtn2">${ic('shuffle')} Nuova versione</button></div>
    <p class="hint">Versione ${(S.variant||0)+1} · impaginazione: ${layoutName(L)}.</p></div>
-   <div class="card"><h4 style="margin-top:0">Anteprima della copertina</h4><img class="logo-img" alt="I.I.S.S. Archimede" src="assets/logo.png" onerror="this.src='data:image/png;base64,'+LOGO_B64"><p style="text-align:center;font-weight:800;margin:10px 0">PROGETTO IMPIANTO A PANNELLI SOLARI PER UN SERVIZIO COMBINATO</p>
-   ${figBox(sceneHouse(D,{cut:true,L:true,title:V('ct',['Progetto impianto a pannelli solari','Impianto solare termico combinato','Pannelli solari per ACS e riscaldamento','Energia dal sole per la casa']),sub:D.loc}),'')}
+   <div class="card"><h4 style="margin-top:0">Anteprima della copertina</h4><img class="logo-img" alt="I.I.S.S. Archimede" src="./assets/logo.png" onerror="this.src='data:image/png;base64,'+LOGO_B64"><p style="text-align:center;font-weight:800;margin:10px 0">PROGETTO IMPIANTO A PANNELLI SOLARI PER UN SERVIZIO COMBINATO</p>
+   ${figBox(figImpianto(D,{mini:true}),'')}
    <p style="font-weight:800;margin:10px 0 0">ALUNNO: ${xesc((S.cognome+' '+S.nome).toUpperCase())}<br>CLASSE: ${xesc(S.classe)}<br>DOCENTE DI RIFERIMENTO: ${xesc(S.docente)}</p></div></div>`}
 async function exportDocx(){
   if(STEPS.some(s=>!s.report&&!stepDone(s))){toast('Completa tutte le fasi prima di scaricare la relazione.');return}
@@ -218,7 +217,7 @@ document.addEventListener('input',e=>{const t=e.target;if(RUNNING&&!t.id)return;
     if(!ownMissing(STEPS[S.step]).length)S.seen[STEPS[S.step].id]=1;queueDyn()}});
 document.addEventListener('change',e=>{const t=e.target;if(RUNNING)return;
   if(t.tagName==='SELECT'&&t.dataset.k){const k=t.dataset.k;S[k]=t.value===''?null:t.value;
-    if(k==='regione'){S.prov=null;S.Tp=null;S.coef=null;delete S.bad.Tp}if(k==='prov'&&S.regione&&S.prov){S.Tp=REGIONI[S.regione].p[S.prov];delete S.bad.Tp}return render()}
+    if(k==='prov'){S.coef=null;if(S.tk.n2)S.tk.n2={}}return render()}
   if(t.dataset.k&&t.type==='checkbox'){S[t.dataset.k]=t.checked;return refreshDyn()}});
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('more')){S.tipsOpen=e.target.open;save()}},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelector('.lbox')?.remove();if(e.key==='Enter'&&e.target.tagName==='INPUT')e.target.blur()});

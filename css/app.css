@@ -237,3 +237,7 @@ input:focus-visible,select:focus-visible{outline:3px solid #f5a524;outline-offse
 .btn:active,.opt:active{transform:translateY(1px)}
 [data-skip]{animation:none}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* spiegazione di ogni passo */
+.why{background:#f3f7ff;border:1px solid #d7e3fb;border-left:4px solid #2a5aa0;border-radius:10px;padding:9px 12px;margin:8px 0 10px;font-size:14.5px;line-height:1.5;color:#1d2433}
+.why b:first-child{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#2a5aa0;margin-bottom:2px}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media (max-width:700px){.tips{grid-template-columns:1fr}}

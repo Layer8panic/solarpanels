@@ -127,3 +127,11 @@ function makeTheme(){
   return t;
 }
 function shade(hex,p){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=x=>Math.round(clamp(p<0?x*(1+p):x+(255-x)*p,0,255));return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1)}
+
+// ===================== AGGIUNTE PER IL PERCORSO SEMPLIFICATO =====================
+// provincia -> regione e zona (Italia Nord/Centro/Sud della tabella dei coefficienti)
+const PROVINCE=Object.fromEntries(Object.entries(REGIONI).flatMap(([r,v])=>Object.keys(v.p).map(p=>[p,{reg:r,z:v.z,lat:v.lat}])));
+// temperatura minima da cui proteggere il circuito con l'antigelo, per zona (come nel modello: Sicilia → −8 °C)
+const ZONA_GELO={Nord:-20,Centro:-15,Sud:-8};
+// litri contenuti nello scambiatore a piastre (dalla scheda tecnica: 24 ÷ 30 l)
+const VSC_OPZ=[24,27,30];
