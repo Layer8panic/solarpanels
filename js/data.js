@@ -123,6 +123,22 @@ function makeTheme(){
     windows:2+Math.floor(R()*2),door:R()<.5,label:pk(['pill','box','tag']),grid:pk(['grid','dots','plain']),tankCol:pk([['#e94b35','#f4a259','#3a86ff'],['#d62828','#f77f00','#277da1'],['#e63946','#ffb703','#219ebc']]),
     hand:R()<.5, view:Math.floor(R()*3)
   };
+  // varianti per i disegni: caldo sempre su toni di rosso/arancio, freddo sempre su toni di blu
+  Object.assign(t,{
+    hot:pk(['#e0482f','#d62828','#e4572e','#c0392b','#ef4444','#dc2f02','#b91c1c','#e85d04','#d9412b','#f0533a']),
+    cold:pk(['#2f7fd8','#1c7ed6','#2563eb','#1d4ed8','#0284c7','#3b82f6','#0369a1','#2b6cb0','#1e88e5','#0e6fd1']),
+    hotMid:pk(['#f28b30','#f4a259','#fb8500','#f59e0b','#f97316','#f6a04d','#ee9b00']),
+    panel:pk([['#2d5aa8','#173a78','#0e2550'],['#2a4f8f','#1a3566','#0c1f42'],['#305f9e','#1b3f73','#10284d'],['#24508c','#163463','#0b1d3d'],['#3b5fa0','#20407a','#132a55']]),
+    ink:pk(['#13294b','#1d2433','#22303f','#1e293b','#2a2540','#16324f','#263238']),
+    coil:pk(['#b8732e','#c27c3a','#a8652a','#d08a43','#b5652b']),
+    tankR:pk([.55,.65,.75,.85,.95]),tankK:pk([.92,1,1.06]),pipeK:pk([.8,.9,1,1.1,1.2]),
+    infoA:pk(['#2a5aa0','#1f6fb2','#3a4fa3','#2563eb','#1e5a8a']),infoW:pk(['#c2410c','#b4521f','#d9480f','#c0392b','#b45309']),infoG:pk(['#14965c','#1f7a4d','#15803d','#2e8b57','#0f766e']),
+    infoP:pk(['#5b4a9e','#7c3aed','#6d28d9','#475569','#0e7490']),
+    sunR:pk([22,26,30]),flip:R()<.5,roofTex:pk(['tile','lines','seam']),
+    roof:pk(['#b5523b','#9c4130','#6b7380','#a65a3a','#7c3a2c','#8a4b38','#4b5563','#8c2d19','#92400e','#57534e','#a0522d','#5b6b7a']),
+    wall:pk(['#f4ead7','#f8f3ea','#efdcbf','#f2ddd2','#e6eef0','#f1e6c8','#eae2d6','#f3e9e0','#e4ecf2','#f2e3cf','#efe9df']),plates:pk([5,6,7,8]),bgTone:pk(['#ffffff','#fbfcfe','#fdfbf6','#f8fafc'])
+  });
+  t.tankCol=[t.hot,t.hotMid,t.cold];
   t.wall2=shade(t.wall,-0.12);t.roof2=shade(t.roof,-0.18);t.accent2=shade(t.accent,0.35);
   return t;
 }
